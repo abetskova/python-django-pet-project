@@ -1,3 +1,30 @@
+import random
+from django.db.models import F
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+def random_quote(request):
+	quotes = Quote.objects.all()
+	if not quotes:
+		return render(request, 'quotes/random_quote.html', {'quote': None})
+	# Выбор случайной цитаты с учетом веса
+	weighted_quotes = [(q, q.weight) for q in quotes]
+	quote = random.choices([q for q, w in weighted_quotes], weights=[w for q, w in weighted_quotes], k=1)[0]
+	# Увеличиваем счетчик просмотров
+	Quote.objects.filter(pk=quote.pk).update(views=F('views') + 1)
+	return render(request, 'quotes/random_quote.html', {'quote': quote})
+
+def vote_quote(request, quote_id, action):
+	quote = Quote.objects.get(pk=quote_id)
+	if action == 'like':
+		quote.likes = F('likes') + 1
+	elif action == 'dislike':
+		quote.dislikes = F('dislikes') + 1
+	quote.save()
+	return HttpResponseRedirect(reverse('random_quote'))
+
+def top_quotes(request):
+	quotes = Quote.objects.order_by('-likes')[:10]
+	return render(request, 'quotes/top_quotes.html', {'quotes': quotes})
 
 from django.shortcuts import render, redirect
 from .forms import QuoteForm

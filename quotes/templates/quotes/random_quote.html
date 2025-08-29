@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+  {% if quote %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <blockquote class="blockquote mb-0">
+          <p>{{ quote.text }}</p>
+          <footer class="blockquote-footer">{{ quote.source.name }} <small>({{ quote.source.type }})</small></footer>
+        </blockquote>
+        <div class="mt-2">
+          <span>Просмотров: {{ quote.views }}</span>
+        </div>
+        <div class="mt-2">
+          <a href="{% url 'vote_quote' quote.id 'like' %}" class="btn btn-success btn-sm">👍 Лайк ({{ quote.likes }})</a>
+          <a href="{% url 'vote_quote' quote.id 'dislike' %}" class="btn btn-danger btn-sm">👎 Дизлайк ({{ quote.dislikes }})</a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <p>Нет цитат для отображения.</p>
+  {% endif %}
+  <a href="{% url 'add_quote' %}" class="btn btn-primary">Добавить цитату</a>
+  <a href="{% url 'top_quotes' %}" class="btn btn-info">Топ-10 цитат</a>
+{% endblock %}
